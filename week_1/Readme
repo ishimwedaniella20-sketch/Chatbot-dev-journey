@@ -1,1 +1,28 @@
+# Week 1: Pizza Chatbot
 
+This notebook is my first chatbot for the Chatbots Development course (AITCD001) at the United African Institute of Technology. It is a pizza-ordering bot written in plain Python, with no libraries, that takes an order in three steps and can be stopped at any moment by typing `bye`.
+
+## What the bot does
+
+The bot greets the user and asks whether it should show the menu. If the user answers `yes`, it prints the sizes with their prices (Small $8, Medium $12, Large $16) and the toppings (Pepperoni, Mushrooms, Cheese). Any other answer skips the menu and the order continues.
+
+It then asks for a pizza size, then for one topping, and finishes by repeating the order back, for example: "Awesome, I have recorded a Medium Cheese pizza for you! Goodbye!"
+
+## How the code works
+
+Everything lives in one function, `pizza_bot()`. The prices are stored in a dictionary that links each size to its price, and the valid toppings are stored in a list. Checking an answer against these two structures is how the bot decides whether the input is acceptable.
+
+Each question sits inside a `while True` loop. If the answer is not valid, the bot explains what is allowed and asks again; when the answer is valid, `break` leaves the loop and the bot moves to the next step. This is why the sample run in the notebook rejects "extra large" and "sausage" politely and only continues once the user types "Medium" and "cheese".
+
+Every answer is converted with `.lower()` before it is checked, so "Medium", "medium" and "MEDIUM" all work. The same check also looks for `bye` at the menu question, the size question and the topping question, and `return` ends the function immediately, which meets the bonus requirement that the bot must stop at any point. The final message uses an f-string with `.capitalize()` so the order is printed neatly.
+
+## Limitation
+
+The bot only understands exact words. "A large one please" or "big" would be rejected, because it compares the whole answer to a fixed list instead of understanding the sentence. Week 2 starts to deal with this by looking at how a computer reads language.
+
+## How to run
+
+Open the notebook, run the first code cell to define `pizza_bot()`, then run the cell that calls `pizza_bot()` and answer the questions in the box that appears.
+
+Author
+Ishimwe Mwambutsa Daniella
