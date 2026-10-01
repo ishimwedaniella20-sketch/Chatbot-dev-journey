@@ -1,0 +1,34 @@
+# Week 2: How Computers "Read"
+
+This notebook is from the Chatbots Development course (AITCD001) at the United African Institute of Technology. Last week's bot only matched exact keywords. This week I looked at how a computer breaks a sentence into pieces it can work with, using the spaCy library and its small English model (`en_core_web_sm`, version 3.8.16), which runs on a normal CPU in the free tier of Google Colab.
+
+## Tokenization
+
+Tokenization splits a sentence into tokens, which are roughly words and punctuation. I ran it on three pizza orders: "I'd like a large pepperoni pizza please", "umm can I get the big one with the meat" and "Two medium mushroom pizzas for Kigali at 7pm tomorrow".
+
+The results show that spaCy does not split the way a person would. It cuts "I'd" into `I` and `'d`, and "7pm" into `7` and `pm`. It also keeps filler words such as "umm" as tokens, so a chatbot has to decide for itself which tokens matter.
+
+## Part-of-speech tagging
+
+POS tagging labels each token with its kind of word. For the first order, spaCy tagged "large" as an adjective, "pepperoni" and "pizza" as nouns, "I" as a pronoun and "please" as an interjection. It tagged "like" as a preposition, which is wrong here because it is a verb. This shows that even a working model makes mistakes on informal or unusual sentences.
+
+## Named entity recognition
+
+Named entity recognition (NER) finds the specific pieces of information a chatbot needs to act on, such as people, places and dates. I tested three sentences.
+
+The pizza order returned no entities, which is correct because it has no names, places or dates. In "Send the invoice to Alice Uwimana at the Huye branch by Friday", spaCy found Alice Uwimana as a person and Friday as a date, but labelled Huye as an organisation, when it is a town in Rwanda. In "Can I get a refund for my order placed in Musanze last month?", it correctly found Musanze as a place and "last month" as a date.
+
+## The main lesson
+
+Most NLP models are trained mostly on English and Western data. The Huye mistake is a limit of the tool, not an error in my code, and it matters for anyone building a chatbot for Rwanda: local names and places need extra work, such as adding custom entities or training on local examples.
+
+## Starting an intent dataset
+
+The last part of the notebook starts a small dataset where each example sentence is paired with its intent, meaning what the user wants. The notebook uses a clinic example with three intents (`opening_hours`, `book_appointment` and `pricing`) and prints each pair. It is a starting template that I will replace with my own chatbot domain. It will later be used to train a real intent classifier in Week 9.
+
+## How to run
+
+Open the notebook in Google Colab and run the cells from the top. The first cell loads spaCy and the model, and every later cell depends on it.
+
+Author
+Ishimwe Mwambutsa Daniella
