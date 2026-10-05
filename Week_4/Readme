@@ -1,1 +1,66 @@
+## Overview
 
+This chatbot answers common questions for the campus library: opening hours, borrowing, renewals, fines and printing. 
+It can also book a study room by asking the reader three short questions. 
+It is built for students and staff who want a quick answer without going to the desk. It uses regular expressions (regex) only, with no machine learning.
+
+## Intents
+
+| Tag | Request | Example phrasing |
+|---|---|---|
+| `rooms` | Book a study room (starts the booking flow) | "i want to book a study room" |
+| `hours` | Opening and closing times | "what time do you open" |
+| `borrow` | How many books, and for how long | "how many books can i take" |
+| `renew` | Extend a loan | "can i renew" |
+| `fines` | Overdue charges | "how much is the fine" |
+| `printing` | Printing and photocopy prices | "how much per page" |
+
+Anything else returns a polite fallback that lists what the bot can help with.
+
+## Rule ordering
+
+Rules are checked **in order, and the first match wins**. The order is: `rooms → hours → borrow → renew → fines → printing`.
+
+The two intents that collide are **`rooms` and `borrow`**. The message *"i want to book a study room"* contains the word *book*, which looks like a borrowing word. So `rooms` is checked first. It looks for the word *room*, which is very specific.
+
+If the order were reversed, a room request could be caught by `borrow` and the reader would get the borrowing rules instead of a booking. The most specific intent must always go before the more general one.
+
+## The booking flow
+
+The bot collects three values, one at a time:
+
+1. **Day**: Monday to Saturday
+2. **Time**: morning, afternoon or evening
+3. **Party size**: a number from 1 to 8
+
+After the last answer, the bot repeats the booking and asks the reader to confirm it, then clears the flow.
+
+- **Answer not recognized ** the bot asks the *same* question again. It does not save the value and does not move to the next step.
+- **Party size** is checked with the regex `\b ([1-8])\b`, so `0` and `9` are rejected.
+- **Leaving:** words like `bye`, `thanks` or `murakoze` are checked on every turn. They end the chat from any step and reset the flow, so a half-finished booking never carries over.
+
+## Test results
+
+- Test messages: 35
+- Returned the expected tag: **32**
+
+The 3 expected failures:
+
+| Message | Expected | Got | Cause |
+|---|---|---|---|
+| "how many books can i take and what are the fines" | `borrow fines` | `borrow` | Two intents in one message. The bot returns only the first match. |
+| "renew my book" | `renew` | `fallback` | Heavy shortening. The keywords are not there to match. |
+| "can I extend my deadline" | `fallback` | `renew` | the word *extend* is shared by `renew` and a deadline request. |
+
+The "two intents in one message" failure cannot be fixed by any pattern, because the bot can only return one answer at a time.
+
+## Running this notebook
+
+1. Open `Ishimwe_Daniella_Assignment_4.ipynb` in Google Colab.
+2. Run the cells in order. **Do not use Run all** — the chat cell waits for input.
+
+## What was learned?
+
+I learned that with rule-based bots the order of the rules matters as much as the patterns themselves. I also saw that regex is good for keywords and numbers, but it cannot understand meaning, so some messages will always fail. Writing out the failures showed me where a smarter approach is needed.
+
+Author: Ishimwe Mwambutsa Daniella
