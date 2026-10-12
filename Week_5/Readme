@@ -1,1 +1,70 @@
+# Week 5: Library Chatbot
 
+## Overview
+
+This chatbot answers library questions about hours, borrowing, renewals, fines, study rooms and printing. Compared to Assignment 4, it can now answer several requests in one message, remember the reader's name, answer a follow-up question, and answer a side question in the middle of a room booking.
+
+## Intents and handlers
+
+| Intent | Handler | Fixed reply, or worked out from the message? |
+|---|---|---|
+| name | handle_name | Worked out (saves the name from the message) |
+| rooms | handle_rooms | Worked out (starts the booking, or says it is already under way) |
+| hours | handle_hours | Fixed reply |
+| borrow | handle_borrow | Fixed reply |
+| renew | handle_renew | Fixed reply |
+| fines | handle_fines | Worked out (uses the number of days in the message) |
+| printing | handle_printing | Fixed reply |
+| greeting | handle_greeting | Fixed reply |
+
+## How the fines handler works
+
+It looks for a number of days in the message, like "3 days" or "1 day". If it finds one, it multiplies the days by 200 RWF. The fine is never more than 5,000 RWF. If there is no number, it gives the general fines reply.
+
+## Several requests in one message
+
+The message is split at "and", "but", "also", "then" and "?". Each piece gets one intent, and the first matching rule wins. So "can i renew a late book" gives only renew, because renew is higher in the table than fines. A repeated intent is skipped. `rooms` is in `ASKS` because its reply is a question the reader must answer next, so it goes last.
+
+## Memory
+
+`context` holds the reader's name and the last intent answered. After a fines answer, a message like "and for 10 days?" is treated as a fines question. During a booking, the booking flow reads the message first. If the message is not an answer to the booking question, the bot answers it and then asks the booking question again.
+
+## Test results
+
+- Assignment 4 test set, one tag per message: 32 of 35
+- Assignment 4 test set, routed: 33 of 35
+
+## Test conversations
+
+| # | What it tests | Expected | What the chatbot did | Pass or fail | If it failed: cause and part responsible |
+|---|---|---|---|---|---|
+| 1 | Two requests joined by "and" | Hours, then printing prices | Gave the hours, then the printing prices | Pass | |
+| 2 | One request that matches two intents | Renewal reply only | Gave the renewal reply only | Pass | |
+| 3 | The question goes last | Hours first, then "Which day?" | Gave the hours, then asked which day | Pass | |
+| 4 | Remembering a name | Greeting, name, printing, goodbye with "Grace" | Did exactly that | Pass | |
+| 5 | A follow-up with no intent of its own | 600 RWF, then 2,000 RWF | 600 RWF, then 2,000 RWF | Pass | |
+| 6 | A side question during a booking | Hours given, time question asked again, booking confirmed for Friday afternoon, 4 people | Did exactly that | Pass | |
+| 7 | Two questions with no connecting word | Borrowing limit, then fines | Gave the borrowing limit only | Fail | No connector word, so the message is not split. Part: the split. |
+| 8 | An answer that is also a question | Evening taken, closing time on Saturday given | Took "evening" and asked for the number of people. The closing time question was not answered | Fail | The booking flow accepts the answer and moves on, so the rest of the message is ignored. Part: the flow. |
+| 9 | Memory (from my chat test) | Greeting, name saved, goodbye uses the name | "hello my name is daniella" was saved, and "bye" gave "Thank you, Daniella. Murakoze." | Pass | |
+| 10 | Break the chatbot (from my chat test) | "Yes" after the booking confirmation is understood | Gave the fallback reply | Fail | The booking ends after the confirmation, so "Yes" matches no intent. Part: the flow and the rule table. |
+
+## Known limitations
+
+- "renew my bk" gives the fallback, because the rules do not handle short or misspelled words.
+- "can i extend my deadline" is treated as renew, because "extend" matches the renew rule.
+- Two questions with no connector word are not split (conversation 7).
+- An answer that also holds a question only gets the answer (conversation 8).
+- Saying "Yes" after a booking confirmation gives the fallback reply.
+- The booking confirmation shows the short day, like "fri".
+
+## Running this notebook
+
+1. Open Daniella_Ishimwe_Assignment_5_Library_Chatbot.ipynb in Google Colab.
+2. Run the cells in order. The chat cell waits for input, so do not use Run all.
+
+## What was learned
+
+I learned how to split a chatbot into small handler functions and route each message to the right one. I also learned how memory lets the bot understand follow-up messages. Finally, I saw that simple rules still fail in some cases, like messages with no connector word.
+
+Author: Ishimwe Mwambutsa Daniella'/
