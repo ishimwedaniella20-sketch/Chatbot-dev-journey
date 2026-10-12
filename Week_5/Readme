@@ -67,4 +67,4 @@ The message is split at "and", "but", "also", "then" and "?". Each piece gets on
 
 I learned how to split a chatbot into small handler functions and route each message to the right one. I also learned how memory lets the bot understand follow-up messages. Finally, I saw that simple rules still fail in some cases, like messages with no connector word.
 
-Author: Ishimwe Mwambutsa Daniella'/
+Author: Ishimwe Mwambutsa Daniella
